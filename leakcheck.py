@@ -60,12 +60,19 @@ def load_urls_from_file(filename):
     return urls
 
 if __name__ == "__main__":
-    search_term = input("Enter the username or full name to search for: ")
-    
-    # Load URLs from data.txt file
-    urls = load_urls_from_file('data.txt')
-    
-    if urls:
-        search_public_leaks(search_term, urls)
-    else:
-        print("No URLs to search.")
+    while True:
+        search_term = input("Enter the username or full name to search for: ")
+        
+        # Load URLs from data.txt file
+        urls = load_urls_from_file('data.txt')
+        
+        if urls:
+            search_public_leaks(search_term, urls)
+        else:
+            print("No URLs to search.")
+        
+        # Ask if the user wants to search again or exit (litrally wixp wanted this so ok) 
+        rerun = input("\nDo you want to search again? (yes/no): ").strip().lower()
+        if rerun != 'yes':
+            print("Exiting..")
+            break
