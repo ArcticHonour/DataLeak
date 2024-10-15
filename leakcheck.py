@@ -11,38 +11,38 @@ def search_public_leaks(search_term, urls):
     
     :param search_term: The username or full name to search for.
     :param urls: A list of URLs of public breach data pages.
-    :return: A dictionary of URLs where the search term was found, along with a snippet of the context.
+    :return: A dictionary of URLs where the search term was found, along with the full line of context.
     """
     found_results = {}
-    
+    hit_counter = 0  # Counter for hits
+
     for url in urls:
         try:
             response = requests.get(url)
             if response.status_code == 200:
                 soup = BeautifulSoup(response.text, 'html.parser')
-                text = soup.get_text()
+                text_lines = soup.get_text().splitlines()
 
-                # Search for the username or full name using regex
-                matches = re.findall(rf'.{{0,50}}{re.escape(search_term)}.{{0,50}}', text, re.IGNORECASE)
+                # Search for the username or full name in each line
+                matches = [line for line in text_lines if re.search(re.escape(search_term), line, re.IGNORECASE)]
+                
+                # Print the URL and number of lines found
+                print(f"\nIn URL: {url}")
+                print(f"Lines found: {len(matches)}")
                 
                 if matches:
                     found_results[url] = matches
+                    for match in matches:
+                        hit_counter += 1  # Increment hit counter
+                        print(f"Hit ({hit_counter}): {match.strip()}")
+                else:
+                    print("No matches found.")
             else:
                 print(f"Failed to access {url}: {response.status_code}")
         except Exception as e:
             print(f"Error while accessing {url}: {e}")
     
     return found_results
-
-def print_results(results):
-    if results:
-        print(f"Found {len(results)} result(s):")
-        for url, matches in results.items():
-            print(f"In URL: {url}")
-            for match in matches:
-                print(f"Snippet: {match.strip()}")
-    else:
-        print("No matches Data leaks found.")
 
 def load_urls_from_file(filename):
     """
@@ -66,7 +66,6 @@ if __name__ == "__main__":
     urls = load_urls_from_file('data.txt')
     
     if urls:
-        results = search_public_leaks(search_term, urls)
-        print_results(results)
+        search_public_leaks(search_term, urls)
     else:
         print("No URLs to search.")
